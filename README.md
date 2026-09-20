@@ -2,6 +2,20 @@
 
 Phase 0/1 implementation of a containerized invoice auditing system. This milestone durably ingests invoice files; it intentionally does **not** implement extraction, translation, validation, human review, RAG, reporting, or a UI yet.
 
+## Clean architecture
+
+The ingestion path is split into dependency-inverted layers:
+
+```text
+monitor (interface adapter)
+    → application/ingest_invoice.py (use case)
+        → application/ports.py (repository and file-store contracts)
+            ← infrastructure/postgres.py + infrastructure/files.py
+        → domain/file_policy.py + domain/models.py (pure rules and values)
+```
+
+The application use case owns the workflow, the domain owns file policies and value objects, and infrastructure owns PostgreSQL/filesystem details. `app/ingestion.py` remains a compatibility facade for existing callers while new code should compose the use case and adapters directly.
+
 ## Architecture
 
 ```mermaid

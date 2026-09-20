@@ -5,7 +5,11 @@ import time
 
 from app.config import Settings
 from app.db import apply_migrations, create_db_engine
-from app.ingestion import FileObservation, InvoiceIngestor, file_is_stable
+from app.application.ingest_invoice import IngestInvoice
+from app.domain.file_policy import file_is_stable
+from app.domain.models import FileObservation
+from app.infrastructure.files import LocalOriginalFileStore
+from app.infrastructure.postgres import PostgresInvoiceRepository
 
 
 class IncomingDirectoryMonitor:
@@ -50,7 +54,13 @@ def main() -> None:
     settings.invoices_dir.mkdir(parents=True, exist_ok=True)
     engine = create_db_engine(settings.database_url)
     apply_migrations(engine)
-    monitor = IncomingDirectoryMonitor(InvoiceIngestor(engine, settings.data_root, settings.max_file_size_bytes, logger), settings)
+    ingestor = IngestInvoice(
+        PostgresInvoiceRepository(engine),
+        LocalOriginalFileStore(settings.data_root),
+        settings.max_file_size_bytes,
+        logger,
+    )
+    monitor = IncomingDirectoryMonitor(ingestor, settings)
     logger.info("monitor_started", extra={"incoming_dir": str(settings.incoming_dir)})
     monitor.run_forever()
 
