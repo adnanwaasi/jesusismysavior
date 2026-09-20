@@ -1,4 +1,4 @@
-# AI Invoice Auditor — Architecture & Delivery Plan
+# AI Invoice Auditor — Project Architecture & Delivery Plan
 
 ## 1. Architectural principle
 
@@ -317,4 +317,3 @@ Do not begin by creating six independent services. Deliver a complete, reliable 
 ## 12. First implementation priority
 
 Design and migrate the state machine plus PostgreSQL schema first. Every other component depends on the invoice identity, state transitions, audit semantics, and data contracts defined there. With that foundation, the ingestion worker and the first vertical slice remain straightforward and testable.
-
