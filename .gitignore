@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+data/incoming/*
+!data/incoming/.gitkeep
+data/incoming/processed/
+data/incoming/duplicates/
+data/invoices/*
+!data/invoices/.gitkeep

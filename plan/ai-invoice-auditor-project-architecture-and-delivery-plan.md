@@ -305,15 +305,16 @@ Do not begin by creating six independent services. Deliver a complete, reliable 
 | Phase | Deliverable | Exit criteria |
 | --- | --- | --- |
 | 0 | State machine and schema | Migration creates all core state, audit, and invoice identity structures. |
-| 1 | Ingestion vertical slice | Dropped PDF is checksummed, immutably stored, recorded in DB, text extracted, and marked complete. |
-| 2 | Structured extraction | Normalized fields and line items are persisted with provenance. |
-| 3 | Language/translation | Language detection and English fields are stored without losing originals. |
-| 4 | Validation | Deterministic rules create discrepancies and correct terminal states. |
-| 5 | Human review | Corrections are append-only, calculate effective values, and trigger revalidation. |
-| 6 | RAG/indexing | Completed invoices are indexed; answers include source evidence. |
-| 7 | Streamlit dashboard | Users can view status, evidence, discrepancies, corrections, and reports. |
-| 8 | Deployment refinement | Components are separated into required Compose containers and operational checks are documented. |
+| 1 | Durable ingestion vertical slice | A stable dropped file is checksummed, deduplicated, immutably stored, recorded with audit events, and ends in `QUEUED`. |
+| 2 | Worker/state machine | Transactional PostgreSQL job claiming, bounded retries, stale-job recovery, and failure handling. |
+| 3 | Structured extraction | Normalized fields and line items are persisted with provenance. |
+| 4 | Language/translation | Language detection and English fields are stored without losing originals. |
+| 5 | Validation | Deterministic rules create discrepancies and correct terminal states. |
+| 6 | Human review | Corrections are append-only, calculate effective values, and trigger revalidation. |
+| 7 | RAG/indexing | Completed invoices are indexed; answers include source evidence. |
+| 8 | Streamlit dashboard | Users can view status, evidence, discrepancies, corrections, and reports. |
+| 9 | Deployment refinement | Components are separated into required Compose containers and operational checks are documented. |
 
 ## 12. First implementation priority
 
-Design and migrate the state machine plus PostgreSQL schema first. Every other component depends on the invoice identity, state transitions, audit semantics, and data contracts defined there. With that foundation, the ingestion worker and the first vertical slice remain straightforward and testable.
+Design and migrate the state machine plus PostgreSQL schema first. Every other component depends on the invoice identity, state transitions, audit semantics, and data contracts defined there. The first vertical slice must end at `QUEUED`; extraction begins only after durable queue processing is implemented.
