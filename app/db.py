@@ -13,6 +13,9 @@ def create_db_engine(database_url: str) -> Engine:
 def apply_migrations(engine: Engine) -> None:
     migrations_dir = Path(__file__).resolve().parents[1] / "migrations"
     with engine.begin() as connection:
+        # Monitor and every worker may start together. Serialize the tiny migration
+        # transaction so only one process can apply a version at a time.
+        connection.exec_driver_sql("SELECT pg_advisory_xact_lock(4815162342)")
         connection.exec_driver_sql(
             """
             CREATE TABLE IF NOT EXISTS schema_migrations (

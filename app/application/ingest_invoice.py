@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import logging
-import mimetypes
 from pathlib import Path
 from uuid import uuid4
 
 from app.application.ports import InvoiceRepository, OriginalFileStore
-from app.domain.file_policy import sha256_file
+from app.domain.file_policy import invoice_mime_type, sha256_file
 from app.domain.models import IngestionResult
 
 
@@ -40,7 +39,7 @@ class IngestInvoice:
 
             invoice_id = uuid4()
             stored_path = self.file_store.store(source_path, invoice_id)
-            mime_type = mimetypes.guess_type(source_path.name)[0] or "application/octet-stream"
+            mime_type = invoice_mime_type(source_path.name)
             try:
                 self.repository.create_queued_invoice(invoice_id, source_path.name, stored_path, checksum, mime_type, size)
             except Exception:

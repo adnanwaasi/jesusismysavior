@@ -8,7 +8,7 @@ class FakeIngestor:
     def __init__(self) -> None:
         self.ingested: list[Path] = []
 
-    def ingest(self, path: Path) -> None:
+    def execute(self, path: Path) -> None:
         self.ingested.append(path)
 
 

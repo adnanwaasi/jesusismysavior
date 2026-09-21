@@ -7,6 +7,16 @@ import hashlib
 from app.domain.models import FileObservation
 
 SUPPORTED_EXTENSIONS = frozenset({".pdf", ".docx", ".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp"})
+MIME_TYPES_BY_EXTENSION = {
+    ".pdf": "application/pdf",
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".tif": "image/tiff",
+    ".tiff": "image/tiff",
+    ".bmp": "image/bmp",
+}
 
 
 def sha256_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
@@ -20,6 +30,11 @@ def sha256_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
 def safe_extension(filename: str) -> str:
     suffix = Path(filename).suffix.lower()
     return suffix if suffix in SUPPORTED_EXTENSIONS else ""
+
+
+def invoice_mime_type(filename: str) -> str:
+    """Return a stable MIME mapping independent of the host OS MIME database."""
+    return MIME_TYPES_BY_EXTENSION.get(Path(filename).suffix.lower(), "application/octet-stream")
 
 
 def file_is_stable(path: Path, observation: FileObservation, now: datetime, stability_seconds: float) -> bool:

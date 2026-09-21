@@ -1,0 +1,7 @@
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS claimed_at TIMESTAMPTZ;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS worker_id TEXT;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+
+CREATE INDEX IF NOT EXISTS invoices_processing_claim_index
+    ON invoices (claimed_at)
+    WHERE status IN ('EXTRACTING', 'TRANSLATING', 'VALIDATING');

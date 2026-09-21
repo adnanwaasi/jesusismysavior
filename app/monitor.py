@@ -13,7 +13,7 @@ from app.infrastructure.postgres import PostgresInvoiceRepository
 
 
 class IncomingDirectoryMonitor:
-    def __init__(self, ingestor: InvoiceIngestor, settings: Settings):
+    def __init__(self, ingestor: IngestInvoice, settings: Settings):
         self.ingestor = ingestor
         self.settings = settings
         self.observations: dict[object, FileObservation] = {}
@@ -32,7 +32,7 @@ class IncomingDirectoryMonitor:
                     self.observations[path] = FileObservation(stat.st_size, stat.st_mtime_ns, now)
                     continue
                 if file_is_stable(path, observation, now, self.settings.stability_seconds):
-                    self.ingestor.ingest(path)
+                    self.ingestor.execute(path)
                     self.observations.pop(path, None)
             except FileNotFoundError:
                 self.observations.pop(path, None)

@@ -1,3 +1,9 @@
 SQLAlchemy==2.0.48
 psycopg[binary]==3.3.3
 python-json-logger==4.0.0
+pydantic==2.12.5
+pypdf==6.6.2
+pypdfium2==4.30.0
+python-docx==1.2.0
+Pillow==12.1.0
+pytesseract==0.3.13

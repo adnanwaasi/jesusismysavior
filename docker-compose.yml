@@ -7,6 +7,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-for-local-use}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-54329}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
@@ -16,6 +18,7 @@ services:
     restart: unless-stopped
 
   monitor:
+    image: ai-invoice-auditor-app:local
     build:
       context: .
     environment:
@@ -27,6 +30,27 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     volumes:
       - ./data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    image: ai-invoice-auditor-app:local
+    command: ["python", "-m", "app.worker"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-invoice_auditor}:${POSTGRES_PASSWORD:-change-me-for-local-use}@postgres:5432/${POSTGRES_DB:-invoice_auditor}
+      WORKER_POLL_INTERVAL_SECONDS: ${WORKER_POLL_INTERVAL_SECONDS:-2}
+      MAX_PROCESSING_ATTEMPTS: ${MAX_PROCESSING_ATTEMPTS:-3}
+      STALE_JOB_TIMEOUT_SECONDS: ${STALE_JOB_TIMEOUT_SECONDS:-300}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      OCR_LANGUAGES: ${OCR_LANGUAGES:-eng}
+      EXTRACTION_MAX_PAGES: ${EXTRACTION_MAX_PAGES:-25}
+      PDF_MIN_MEANINGFUL_CHARACTERS: ${PDF_MIN_MEANINGFUL_CHARACTERS:-40}
+      PDF_MIN_PRINTABLE_RATIO: ${PDF_MIN_PRINTABLE_RATIO:-0.8}
+      OCR_DPI: ${OCR_DPI:-200}
+    volumes:
+      - ./data:/data:ro
     depends_on:
       postgres:
         condition: service_healthy

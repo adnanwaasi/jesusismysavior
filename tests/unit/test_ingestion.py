@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 import os
 from pathlib import Path
 
+from app.domain.file_policy import invoice_mime_type
 from app.ingestion import FileObservation, file_is_stable, safe_extension, sha256_file
 
 
@@ -29,3 +30,7 @@ def test_safe_extension_only_preserves_supported_invoice_extensions() -> None:
     assert safe_extension("INVOICE.PDF") == ".pdf"
     assert safe_extension("invoice.docx") == ".docx"
     assert safe_extension("invoice.exe") == ""
+
+
+def test_docx_mime_type_does_not_depend_on_host_mime_database() -> None:
+    assert invoice_mime_type("invoice.docx") == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
