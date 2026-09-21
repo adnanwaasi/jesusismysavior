@@ -35,6 +35,20 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  api:
+    image: ai-invoice-auditor-api:local
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      DATA_ROOT: /data
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ./data:/data
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    restart: unless-stopped
+
   worker:
     image: ai-invoice-auditor-app:local
     command: ["python", "-m", "app.worker"]
