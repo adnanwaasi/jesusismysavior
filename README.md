@@ -1,6 +1,6 @@
 # AI Invoice Auditor
 
-> Reference implementation of work delivered in an AI Invoice Auditor architecture engagement, Phase 0–3, client data removed.
+> Reference architecture and implementation of an AI Invoice Auditor, Phase 0–3, built with synthetic data only.
 
 Phase 0–3 implementation of a containerized invoice auditing system. It durably ingests invoice files, safely claims PostgreSQL-backed jobs, and extracts structured invoice data locally from digital PDFs, scanned PDFs, DOCX files, and supported images. Translation, validation, human review, RAG, reporting, and the UI remain later phases.
 
